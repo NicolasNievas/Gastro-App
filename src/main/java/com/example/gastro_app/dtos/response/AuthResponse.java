@@ -1,4 +1,4 @@
-package com.example.gastro_app.dtos.request;
+package com.example.gastro_app.dtos.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginRequest {
+public class AuthResponse {
+    private String token;
     private String username;
-    private String password;
+    private String role;
 }

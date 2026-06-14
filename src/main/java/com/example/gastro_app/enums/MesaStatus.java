@@ -2,6 +2,8 @@ package com.example.gastro_app.enums;
 
 public enum MesaStatus {
     LIBRE,
-    OCUPADA,
-    CUENTA_PEDIDA
+    ESPERANDO_PEDIDO,
+    EN_PREPARACION,
+    LISTA,
+    PARA_COBRAR
 }

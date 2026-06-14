@@ -35,6 +35,9 @@ public class PaymentEntity {
     @Column(nullable = false)
     private BigDecimal discount;
 
+    @Column(nullable = false)
+    private BigDecimal surcharge;
+
     @Column(length = 500)
     private String notes;
 
