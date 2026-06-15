@@ -39,6 +39,12 @@ public class ProductEntity {
     @Column(nullable = false)
     private Integer stock;
 
+    @Column(name = "low_stock", nullable = false)
+    private Integer lowStock = 10;
+
+    @Column(name = "no_stock", nullable = false)
+    private Boolean noStock = false;
+
     @Column(nullable = false)
     private Boolean active = true;
 
