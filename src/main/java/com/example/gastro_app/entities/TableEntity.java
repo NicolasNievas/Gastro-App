@@ -4,6 +4,9 @@ import com.example.gastro_app.enums.MesaStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "mesas")
 @Getter
@@ -25,4 +28,15 @@ public class TableEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MesaStatus state;
+
+    @Column(name = "opened_at")
+    private LocalDateTime openedAt;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal discount = BigDecimal.ZERO;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    @Builder.Default
+    private BigDecimal surcharge = BigDecimal.ZERO;
 }

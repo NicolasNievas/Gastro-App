@@ -2,11 +2,14 @@ package com.example.gastro_app.config;
 
 import com.example.gastro_app.entities.CategoryEntity;
 import com.example.gastro_app.entities.ProductEntity;
+import com.example.gastro_app.entities.TableEntity;
 import com.example.gastro_app.entities.UserEntity;
+import com.example.gastro_app.enums.MesaStatus;
 import com.example.gastro_app.enums.Role;
 import com.example.gastro_app.enums.Sector;
 import com.example.gastro_app.repositories.CategoryRepository;
 import com.example.gastro_app.repositories.ProductRepository;
+import com.example.gastro_app.repositories.TableRepository;
 import com.example.gastro_app.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,11 +31,13 @@ public class DataInitializer implements CommandLineRunner {
     private final PasswordEncoder passwordEncoder;
     private final CategoryRepository categoryRepository;
     private final ProductRepository productRepository;
+    private final TableRepository tableRepository;
 
     @Override
     public void run(String... args) {
         seedUsers();
         seedCatalog();
+        seedTables();
     }
 
     private void seedUsers() {
@@ -106,5 +111,19 @@ public class DataInitializer implements CommandLineRunner {
                 .build()));
 
         log.info("Seed: {} categorías, {} productos", cats.size(), productRepository.count());
+    }
+
+    private void seedTables() {
+        if (tableRepository.count() > 0) return;
+        for (int i = 1; i <= 8; i++) {
+            tableRepository.save(TableEntity.builder()
+                    .number(i)
+                    .capacity(4)
+                    .state(MesaStatus.LIBRE)
+                    .discount(BigDecimal.ZERO)
+                    .surcharge(BigDecimal.ZERO)
+                    .build());
+        }
+        log.info("Seed: 8 mesas creadas");
     }
 }
