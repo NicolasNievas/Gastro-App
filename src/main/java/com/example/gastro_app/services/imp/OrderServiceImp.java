@@ -5,10 +5,7 @@ import com.example.gastro_app.dtos.exceptions.ResourceNotFoundException;
 import com.example.gastro_app.dtos.request.CreateOrderRequestDto;
 import com.example.gastro_app.dtos.request.OrderItemRequestDto;
 import com.example.gastro_app.dtos.request.UpdateSectorStatusDto;
-import com.example.gastro_app.dtos.response.OrderItemResponseDto;
-import com.example.gastro_app.dtos.response.OrderResponseDto;
-import com.example.gastro_app.dtos.response.OrderSummaryDto;
-import com.example.gastro_app.dtos.response.SectorOrderResponseDto;
+import com.example.gastro_app.dtos.response.*;
 import com.example.gastro_app.entities.*;
 import com.example.gastro_app.enums.*;
 import com.example.gastro_app.mappers.TableMapper;
@@ -16,6 +13,7 @@ import com.example.gastro_app.repositories.*;
 import com.example.gastro_app.services.OrderService;
 import com.example.gastro_app.services.TableService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +36,7 @@ public class OrderServiceImp implements OrderService {
     private final TableService tableService;
     private final TableRepository tableRepository;
     private final TableMapper tableMapper;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     @Transactional(readOnly = true)
@@ -118,19 +117,25 @@ public class OrderServiceImp implements OrderService {
         List<OrderItemEntity> savedItems = orderItemRepository.saveAll(itemEntities);
         order.setItems(savedItems);
 
-        // 6. Crear sector orders — espejo de makeOrder() en app.js
-        //    Solo se crea un sector order por cada sector que tenga ítems
+        // 6. Crear sector orders + broadcast a cocina/barra
         List<SectorOrderEntity> savedSectorOrders = new ArrayList<>();
         for (Sector sector : List.of(Sector.COCINA, Sector.BARRA)) {
-            boolean hasSectorItems = savedItems.stream().anyMatch(i -> i.getSector() == sector);
-            if (hasSectorItems) {
-                savedSectorOrders.add(sectorOrderRepository.save(
-                        SectorOrderEntity.builder()
-                                .order(order)
-                                .sector(sector)
-                                .status(SectorOrderStatus.PENDIENTE)
-                                .build()));
-            }
+            List<OrderItemEntity> sectorItems = savedItems.stream()
+                    .filter(i -> i.getSector() == sector).toList();
+            if (sectorItems.isEmpty()) continue;
+
+            SectorOrderEntity so = sectorOrderRepository.save(
+                    SectorOrderEntity.builder()
+                            .order(order)
+                            .sector(sector)
+                            .status(SectorOrderStatus.PENDIENTE)
+                            .build());
+            savedSectorOrders.add(so);
+
+            // Broadcast → cocina o barra recibe la nueva comanda en tiempo real
+            messagingTemplate.convertAndSend(
+                    "/topic/orders",
+                    WsEventDto.of(WsEventType.ORDER_CREATED, toKdsDto(so, sectorItems)));
         }
 
         // 7. Abrir mesa — espejo de table.status = "esperando_pedido" + table.openedAt ||= new Date()
@@ -158,7 +163,13 @@ public class OrderServiceImp implements OrderService {
         List<OrderItemEntity> items = orderItemRepository.findByOrderIdAndSector(
                 sectorOrder.getOrder().getId(), sectorOrder.getSector());
 
-        return toKdsDto(sectorOrder, items);
+        SectorOrderResponseDto result = toKdsDto(sectorOrder, items);
+
+        messagingTemplate.convertAndSend(
+                "/topic/orders",
+                WsEventDto.of(WsEventType.SECTOR_STATUS_UPDATED, result));
+
+        return result;
     }
 
     /**

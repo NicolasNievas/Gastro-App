@@ -5,12 +5,15 @@ import com.example.gastro_app.dtos.exceptions.ResourceNotFoundException;
 import com.example.gastro_app.dtos.request.TableAdjustmentDto;
 import com.example.gastro_app.dtos.request.TableRequestDto;
 import com.example.gastro_app.dtos.response.TableResponseDto;
+import com.example.gastro_app.dtos.response.WsEventDto;
 import com.example.gastro_app.entities.TableEntity;
 import com.example.gastro_app.enums.MesaStatus;
+import com.example.gastro_app.enums.WsEventType;
 import com.example.gastro_app.mappers.TableMapper;
 import com.example.gastro_app.repositories.TableRepository;
 import com.example.gastro_app.services.TableService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,6 +26,7 @@ public class TableServiceImp implements TableService {
 
     private final TableRepository tableRepository;
     private final TableMapper tableMapper;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     public List<TableResponseDto> findAll() {
@@ -101,6 +105,7 @@ public class TableServiceImp implements TableService {
         }
         table.setState(MesaStatus.ESPERANDO_PEDIDO);
         tableRepository.save(table);
+        broadcast(table);
     }
 
     /**
@@ -115,6 +120,7 @@ public class TableServiceImp implements TableService {
         table.setDiscount(BigDecimal.ZERO);
         table.setSurcharge(BigDecimal.ZERO);
         tableRepository.save(table);
+        broadcast(table);
     }
 
     /**
@@ -127,6 +133,7 @@ public class TableServiceImp implements TableService {
         TableEntity table = getOrThrow(tableId);
         table.setState(newState);
         tableRepository.save(table);
+        broadcast(table);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────
@@ -136,4 +143,9 @@ public class TableServiceImp implements TableService {
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa", id));
     }
 
+    private void broadcast(TableEntity table) {
+        messagingTemplate.convertAndSend(
+                "/topic/tables",
+                WsEventDto.of(WsEventType.TABLE_UPDATED, tableMapper.toDto(table)));
+    }
 }
