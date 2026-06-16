@@ -7,6 +7,7 @@ import com.example.gastro_app.dtos.request.TableRequestDto;
 import com.example.gastro_app.dtos.response.TableResponseDto;
 import com.example.gastro_app.entities.TableEntity;
 import com.example.gastro_app.enums.MesaStatus;
+import com.example.gastro_app.mappers.TableMapper;
 import com.example.gastro_app.repositories.TableRepository;
 import com.example.gastro_app.services.TableService;
 import lombok.RequiredArgsConstructor;
@@ -21,22 +22,23 @@ import java.util.List;
 public class TableServiceImp implements TableService {
 
     private final TableRepository tableRepository;
+    private final TableMapper tableMapper;
 
     @Override
     public List<TableResponseDto> findAll() {
         return tableRepository.findAllByOrderByNumberAsc().stream()
-                .map(this::toDto).toList();
+                .map(tableMapper::toDto).toList();
     }
 
     @Override
     public List<TableResponseDto> findOpen() {
         return tableRepository.findByStateNotOrderByNumberAsc(MesaStatus.LIBRE).stream()
-                .map(this::toDto).toList();
+                .map(tableMapper::toDto).toList();
     }
 
     @Override
     public TableResponseDto findById(Long id) {
-        return toDto(getOrThrow(id));
+        return tableMapper.toDto(getOrThrow(id));
     }
 
     @Override
@@ -51,7 +53,7 @@ public class TableServiceImp implements TableService {
                 .discount(BigDecimal.ZERO)
                 .surcharge(BigDecimal.ZERO)
                 .build();
-        return toDto(tableRepository.save(entity));
+        return tableMapper.toDto(tableRepository.save(entity));
     }
 
     @Override
@@ -62,7 +64,7 @@ public class TableServiceImp implements TableService {
         }
         entity.setNumber(req.getNumber());
         entity.setCapacity(req.getCapacity());
-        return toDto(tableRepository.save(entity));
+        return tableMapper.toDto(tableRepository.save(entity));
     }
 
     @Override
@@ -73,7 +75,7 @@ public class TableServiceImp implements TableService {
         }
         entity.setDiscount(req.getDiscount());
         entity.setSurcharge(req.getSurcharge());
-        return toDto(tableRepository.save(entity));
+        return tableMapper.toDto(tableRepository.save(entity));
     }
 
     @Override
@@ -91,6 +93,7 @@ public class TableServiceImp implements TableService {
      * Abre la mesa al recibir el primer pedido.
      * Espejo de: table.status = "esperando_pedido" + table.openedAt ||= new Date()
      */
+    @Override
     public void open(Long tableId) {
         TableEntity table = getOrThrow(tableId);
         if (table.getOpenedAt() == null) {
@@ -104,6 +107,7 @@ public class TableServiceImp implements TableService {
      * Cierra la mesa al cobrar.
      * Espejo de: table.status = "libre" + openedAt/discount/surcharge = null/0/0
      */
+    @Override
     public void close(Long tableId) {
         TableEntity table = getOrThrow(tableId);
         table.setState(MesaStatus.LIBRE);
@@ -118,6 +122,7 @@ public class TableServiceImp implements TableService {
      * Espejo de syncTableStatus() en app.js — la lógica vive en OrderService,
      * que computa el nuevo estado y se lo pasa a este método.
      */
+    @Override
     public void syncState(Long tableId, MesaStatus newState) {
         TableEntity table = getOrThrow(tableId);
         table.setState(newState);
@@ -126,21 +131,9 @@ public class TableServiceImp implements TableService {
 
     // ── Helpers ───────────────────────────────────────────────────────
 
-    public TableEntity getOrThrow(Long id) {
+    private TableEntity getOrThrow(Long id) {
         return tableRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Mesa", id));
     }
 
-    public TableResponseDto toDto(TableEntity e) {
-        return TableResponseDto.builder()
-                .id(e.getId())
-                .number(e.getNumber())
-                .capacity(e.getCapacity())
-                .state(e.getState())
-                .stateLabel(e.getState().getLabel())
-                .openedAt(e.getOpenedAt())
-                .discount(e.getDiscount())
-                .surcharge(e.getSurcharge())
-                .build();
-    }
 }

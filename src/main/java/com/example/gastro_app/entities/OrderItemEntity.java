@@ -1,6 +1,7 @@
 package com.example.gastro_app.entities;
 
 import com.example.gastro_app.enums.OrderItemStatus;
+import com.example.gastro_app.enums.Sector;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,4 +33,8 @@ public class OrderItemEntity {
 
     @Enumerated(EnumType.STRING)
     private OrderItemStatus state;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Sector sector;
 }
