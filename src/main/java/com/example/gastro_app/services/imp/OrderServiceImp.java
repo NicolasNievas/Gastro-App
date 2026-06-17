@@ -200,11 +200,12 @@ public class OrderServiceImp implements OrderService {
         return orderItemRepository.findByTableIdAndOrderState(tableId, OrderStatus.ABIERTO);
     }
 
-    public void closeOrdersByTableId(Long tableId) {
+    public void closeOrdersByTableId(Long tableId, PaymentEntity payment) {
         List<OrderEntity> open = orderRepository.findByTable_IdAndState(tableId, OrderStatus.ABIERTO);
         open.forEach(o -> {
             o.setState(OrderStatus.CERRADO);
             o.setClosedAt(LocalDateTime.now());
+            o.setPayment(payment);
         });
         orderRepository.saveAll(open);
     }

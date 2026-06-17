@@ -32,4 +32,12 @@ public interface OrderItemRepository extends JpaRepository<OrderItemEntity, Long
     List<OrderItemEntity> findByTableIdAndOrderState(
             @Param("tableId") Long tableId,
             @Param("state") OrderStatus state);
+
+    @Query("""
+       SELECT oi FROM OrderItemEntity oi
+       JOIN FETCH oi.product
+       WHERE oi.order.payment.id = :paymentId
+       ORDER BY oi.sector, oi.product.name
+       """)
+    List<OrderItemEntity> findItemsByPaymentId(@Param("paymentId") Long paymentId);
 }

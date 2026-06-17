@@ -37,6 +37,10 @@ public class OrderEntity {
     @Column(name = "total", nullable = false)
     private BigDecimal total;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "payment_id")
+    private PaymentEntity payment;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
