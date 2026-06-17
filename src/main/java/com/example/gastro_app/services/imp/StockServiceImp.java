@@ -1,7 +1,7 @@
 package com.example.gastro_app.services.imp;
 
-import com.example.gastro_app.dtos.exceptions.BusinessException;
-import com.example.gastro_app.dtos.exceptions.ResourceNotFoundException;
+import com.example.gastro_app.exceptions.BusinessException;
+import com.example.gastro_app.exceptions.ResourceNotFoundException;
 import com.example.gastro_app.dtos.request.RestockDto;
 import com.example.gastro_app.dtos.request.StockAdjustmentDto;
 import com.example.gastro_app.dtos.response.StockAlertDto;

@@ -1,4 +1,4 @@
-package com.example.gastro_app.dtos.exceptions;
+package com.example.gastro_app.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException{
     public ResourceNotFoundException(String resource, Long id) {

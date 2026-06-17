@@ -1,7 +1,7 @@
 package com.example.gastro_app.services.imp;
 
-import com.example.gastro_app.dtos.exceptions.BusinessException;
-import com.example.gastro_app.dtos.exceptions.ResourceNotFoundException;
+import com.example.gastro_app.exceptions.BusinessException;
+import com.example.gastro_app.exceptions.ResourceNotFoundException;
 import com.example.gastro_app.dtos.request.TableAdjustmentDto;
 import com.example.gastro_app.dtos.request.TableRequestDto;
 import com.example.gastro_app.dtos.response.TableResponseDto;
@@ -15,6 +15,7 @@ import com.example.gastro_app.services.TableService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class TableServiceImp implements TableService {
 
     private final TableRepository tableRepository;
@@ -103,7 +105,9 @@ public class TableServiceImp implements TableService {
         if (table.getOpenedAt() == null) {
             table.setOpenedAt(LocalDateTime.now());
         }
-        table.setState(MesaStatus.ESPERANDO_PEDIDO);
+        if (table.getState() == MesaStatus.LIBRE) {
+            table.setState(MesaStatus.ESPERANDO_PEDIDO);
+        };
         tableRepository.save(table);
         broadcast(table);
     }

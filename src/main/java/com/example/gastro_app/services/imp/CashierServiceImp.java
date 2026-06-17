@@ -1,7 +1,7 @@
 package com.example.gastro_app.services.imp;
 
-import com.example.gastro_app.dtos.exceptions.BusinessException;
-import com.example.gastro_app.dtos.exceptions.ResourceNotFoundException;
+import com.example.gastro_app.exceptions.BusinessException;
+import com.example.gastro_app.exceptions.ResourceNotFoundException;
 import com.example.gastro_app.dtos.request.CloseCashierRequestDto;
 import com.example.gastro_app.dtos.response.*;
 import com.example.gastro_app.entities.*;
@@ -12,7 +12,6 @@ import com.example.gastro_app.services.CashierService;
 import com.example.gastro_app.services.OrderService;
 import com.example.gastro_app.services.TableService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +31,6 @@ public class CashierServiceImp implements CashierService {
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
     private final StockMovementRepository stockMovementRepository;
-    private final SimpMessagingTemplate messagingTemplate;
 
     @Override
     @Transactional(readOnly = true)
@@ -197,7 +195,28 @@ public class CashierServiceImp implements CashierService {
     }
 
     private List<BillItemDto> toItemDtos(List<OrderItemEntity> items) {
-        return items.stream().map(this::toItemDto).toList();
+        Map<Long, BillItemDto> aggregated = new LinkedHashMap<>();
+
+        for (OrderItemEntity item : items){
+            Long productId = item.getProduct().getId();
+            BigDecimal price = item.getProduct().getPrice();
+
+            aggregated.merge(productId,
+                    toItemDto(item),
+                    (existing, incoming) -> {
+                int newQty = existing.getQuantity() + incoming.getQuantity();
+                return BillItemDto.builder()
+                        .productId(productId)
+                        .productName(existing.getProductName())
+                        .unitPrice(price)
+                        .quantity(newQty)
+                        .sector(existing.getSector())
+                        .subtotal(price.multiply(BigDecimal.valueOf(newQty)))
+                        .build();
+                    });
+        }
+
+        return new ArrayList<>(aggregated.values());
     }
 
     private PaymentResponseDto toPaymentDto(PaymentEntity p, List<OrderItemEntity> items) {

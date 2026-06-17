@@ -1,8 +1,8 @@
 package com.example.gastro_app.config;
 
 import com.example.gastro_app.dtos.common.ErrorApi;
-import com.example.gastro_app.dtos.exceptions.BusinessException;
-import com.example.gastro_app.dtos.exceptions.ResourceNotFoundException;
+import com.example.gastro_app.exceptions.BusinessException;
+import com.example.gastro_app.exceptions.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;

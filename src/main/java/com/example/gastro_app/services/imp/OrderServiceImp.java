@@ -1,7 +1,7 @@
 package com.example.gastro_app.services.imp;
 
-import com.example.gastro_app.dtos.exceptions.BusinessException;
-import com.example.gastro_app.dtos.exceptions.ResourceNotFoundException;
+import com.example.gastro_app.exceptions.BusinessException;
+import com.example.gastro_app.exceptions.ResourceNotFoundException;
 import com.example.gastro_app.dtos.request.CreateOrderRequestDto;
 import com.example.gastro_app.dtos.request.OrderItemRequestDto;
 import com.example.gastro_app.dtos.request.UpdateSectorStatusDto;
@@ -121,7 +121,7 @@ public class OrderServiceImp implements OrderService {
         List<SectorOrderEntity> savedSectorOrders = new ArrayList<>();
         for (Sector sector : List.of(Sector.COCINA, Sector.BARRA)) {
             List<OrderItemEntity> sectorItems = savedItems.stream()
-                    .filter(i -> i.getSector() == sector).toList();
+                    .filter(i -> i.getSector() == sector || i.getSector() == Sector.AMBOS).toList();
             if (sectorItems.isEmpty()) continue;
 
             SectorOrderEntity so = sectorOrderRepository.save(

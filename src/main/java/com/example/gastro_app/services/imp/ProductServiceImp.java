@@ -1,6 +1,6 @@
 package com.example.gastro_app.services.imp;
 
-import com.example.gastro_app.dtos.exceptions.ResourceNotFoundException;
+import com.example.gastro_app.exceptions.ResourceNotFoundException;
 import com.example.gastro_app.dtos.request.ProductRequestDto;
 import com.example.gastro_app.dtos.response.CategoryResponseDto;
 import com.example.gastro_app.dtos.response.ProductResponseDto;
@@ -12,11 +12,13 @@ import com.example.gastro_app.repositories.ProductRepository;
 import com.example.gastro_app.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ProductServiceImp implements ProductService {
 
     private final ProductRepository productRepository;

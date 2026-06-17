@@ -16,7 +16,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItemEntity, Long
     @Query("""
            SELECT oi FROM OrderItemEntity oi
            JOIN FETCH oi.product
-           WHERE oi.order.id = :orderId AND oi.sector = :sector
+           WHERE oi.order.id = :orderId
+             AND (oi.sector = :sector OR oi.sector = com.example.gastro_app.enums.Sector.AMBOS)
            """)
     List<OrderItemEntity> findByOrderIdAndSector(
             @Param("orderId") Long orderId,

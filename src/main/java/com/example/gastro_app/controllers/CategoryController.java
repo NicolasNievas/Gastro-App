@@ -19,7 +19,7 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    @GetMapping("/get")
+    @GetMapping
     public ResponseEntity<List<CategoryResponseDto>> findAll(){
         return ResponseEntity.ok(categoryService.findAll());
     }

@@ -1,7 +1,7 @@
 package com.example.gastro_app.services.imp;
 
-import com.example.gastro_app.dtos.exceptions.BusinessException;
-import com.example.gastro_app.dtos.exceptions.ResourceNotFoundException;
+import com.example.gastro_app.exceptions.BusinessException;
+import com.example.gastro_app.exceptions.ResourceNotFoundException;
 import com.example.gastro_app.dtos.request.CategoryRequestDto;
 import com.example.gastro_app.dtos.response.CategoryResponseDto;
 import com.example.gastro_app.entities.CategoryEntity;
@@ -9,11 +9,13 @@ import com.example.gastro_app.repositories.CategoryRepository;
 import com.example.gastro_app.services.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CategoryServiceImp implements CategoryService {
 
     private final CategoryRepository categoryRepository;
@@ -32,7 +34,7 @@ public class CategoryServiceImp implements CategoryService {
     @Override
     public CategoryResponseDto create(CategoryRequestDto request) {
         if (categoryRepository.findByNameIgnoreCase(request.getName()).isPresent()){
-            throw new RuntimeException("Ya existe una categoría con el nombre: " + request.getName());
+            throw new BusinessException("Ya existe una categoría con el nombre: " + request.getName());
         }
         CategoryEntity category = CategoryEntity.builder()
                 .name(request.getName().trim())
