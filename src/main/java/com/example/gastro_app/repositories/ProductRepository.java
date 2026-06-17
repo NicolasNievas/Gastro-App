@@ -28,4 +28,31 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
     @Query("SELECT p FROM ProductEntity p JOIN FETCH p.category WHERE p.id = :id")
     Optional<ProductEntity> findByIdWithCategory(@Param("id") Long id);
+
+    @Query("""
+       SELECT p FROM ProductEntity p
+       JOIN FETCH p.category
+       WHERE p.active = true
+       ORDER BY p.category.name, p.name
+       """)
+    List<ProductEntity> findAllActiveWithCategory();
+
+    @Query("""
+       SELECT p FROM ProductEntity p
+       JOIN FETCH p.category
+       WHERE p.active = true
+         AND p.noStock = false
+         AND p.stock <= p.lowStock
+       ORDER BY p.stock ASC
+       """)
+    List<ProductEntity> findLowStockProducts();
+
+    @Query("""
+       SELECT p FROM ProductEntity p
+       JOIN FETCH p.category
+       WHERE p.active = true
+         AND (p.noStock = true OR p.stock = 0)
+       ORDER BY p.name ASC
+       """)
+    List<ProductEntity> findOutOfStockProducts();
 }
