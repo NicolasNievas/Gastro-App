@@ -1,3 +1,5 @@
+import KDSBoard from '../../components/KDSBoard'
+
 export default function CocinaPage() {
-  return <h2 style={{ padding: 32 }}>Cocina — en construcción</h2>
+  return <KDSBoard sector="COCINA" title="Kitchen Display System" />
 }

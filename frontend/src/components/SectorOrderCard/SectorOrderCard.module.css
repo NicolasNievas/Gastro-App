@@ -1,0 +1,64 @@
+.card {
+  display: grid;
+  gap: 10px;
+}
+
+.ready {
+  border-color: rgba(77, 182, 172, .8);
+  box-shadow: 0 0 0 1px rgba(77, 182, 172, .24), var(--shadow);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tableNumber { margin: 0; font-size: 1.1rem; }
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: .82rem;
+  font-weight: 800;
+}
+.pendiente  { background: rgba(240,193,94,.18);  color: #ffe2a2; }
+.enPrep     { background: rgba(106,168,232,.18); color: #cce5ff; }
+.listo      { background: rgba(77,182,172,.2);   color: #c9fff8; }
+.entregado  { background: rgba(224,100,100,.2);  color: #ffd7d7; }
+
+.meta {
+  display: flex;
+  gap: 10px;
+  color: var(--muted);
+  font-size: .85rem;
+}
+
+.items {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.itemNote { color: var(--muted); font-size: .85rem; }
+
+.generalNote {
+  margin: 0;
+  color: var(--muted);
+  font-size: .85rem;
+  font-style: italic;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.actions button { flex: 1 1 auto; min-width: 110px; font-size: .85rem; }
+
+.info    { background: var(--info);  color: #07111e; }
+.warn    { background: var(--warn);  color: #1f1704; }
+.success { background: var(--ok);    color: #07140a; }

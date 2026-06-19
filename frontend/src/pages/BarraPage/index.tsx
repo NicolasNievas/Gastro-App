@@ -1,3 +1,5 @@
+import KDSBoard from '../../components/KDSBoard'
+
 export default function BarraPage() {
-  return <h2 style={{ padding: 32 }}>Barra — en construcción</h2>
+  return <KDSBoard sector="BARRA" title="Pedidos de barra" />
 }
