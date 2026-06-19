@@ -193,3 +193,13 @@ export interface WsEvent<T = unknown> {
   payload: T
   timestamp: string
 }
+
+// ── Draft de comanda (frontend-only) ─────────
+export interface DraftItem {
+  productId: number
+  productName: string
+  price: number
+  sector: Sector
+  quantity: number
+  notes: string
+}

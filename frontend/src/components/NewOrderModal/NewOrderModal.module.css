@@ -1,0 +1,132 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 100;
+}
+
+.modal {
+  width: 100%;
+  max-width: 1100px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.header h2 { margin: 0; font-size: 1.3rem; }
+
+.error {
+  margin: 12px 20px 0;
+  background: rgba(224,100,100,.12);
+  border-left: 4px solid var(--danger);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--danger);
+  font-size: .9rem;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 1.3fr .9fr;
+  gap: 16px;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.left { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+
+.formGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field    { display: grid; gap: 6px; }
+.field span { color: var(--muted); font-size: .88rem; }
+
+.loading { color: var(--muted); }
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.tabActive {
+  background: var(--accent);
+  color: #1a120b;
+}
+
+.productList { display: grid; gap: 8px; max-height: 360px; overflow-y: auto; }
+
+.productRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-2);
+  padding: 10px 12px;
+}
+
+.meta {
+  display: flex;
+  gap: 10px;
+  color: var(--muted);
+  font-size: .82rem;
+  margin-top: 4px;
+}
+
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+}
+.right h3 { margin: 0; }
+
+.draftList { display: grid; gap: 10px; max-height: 320px; overflow-y: auto; }
+
+.draftItem {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-2);
+  padding: 10px;
+}
+
+.draftControls {
+  display: grid;
+  grid-template-columns: 70px 1fr auto;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.totalBox {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  font-size: 1.2rem;
+}
+
+.actions { display: flex; gap: 10px; }
+.actions button { flex: 1; }
+
+@media (max-width: 800px) {
+  .content { grid-template-columns: 1fr; }
+  .formGrid { grid-template-columns: 1fr; }
+}

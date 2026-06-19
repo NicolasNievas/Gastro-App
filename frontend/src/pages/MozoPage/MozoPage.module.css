@@ -50,3 +50,5 @@
 
 .lista  { border-color: rgba(77,182,172,.7);  }
 .paraCobrar { border-color: rgba(224,100,100,.5); }
+
+.headerActions { display: flex; gap: 10px; }
