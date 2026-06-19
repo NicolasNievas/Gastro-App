@@ -203,3 +203,13 @@ export interface DraftItem {
   quantity: number
   notes: string
 }
+
+export interface TableAdjustmentRequest {
+  discount: number
+  surcharge: number
+}
+
+export interface CloseCashierRequest {
+  paymentMethod: PaymentMethod
+  notes?: string
+}

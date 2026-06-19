@@ -3,7 +3,6 @@ import { getActiveSectorOrders, updateSectorStatus } from '../../api/orders'
 import { useWebSocket } from '../../hooks/useWebSocket'
 import SectorOrderCard from '../SectorOrderCard'
 import type { SectorOrderDto, SectorOrderStatus, Sector, WsEvent } from '../../types'
-import styles from './KDSBoard.module.css'
 
 interface KDSBoardProps {
   sector: Sector
@@ -11,9 +10,9 @@ interface KDSBoardProps {
 }
 
 export default function KDSBoard({ sector, title }: KDSBoardProps) {
-  const [orders,  setOrders]  = useState<SectorOrderDto[]>([])
+  const [orders, setOrders]   = useState<SectorOrderDto[]>([])
   const [loading, setLoading] = useState(true)
-  const [error,   setError]   = useState('')
+  const [error, setError]     = useState('')
   const [updatingId, setUpdatingId] = useState<number | null>(null)
 
   const loadOrders = useCallback(() => {
@@ -25,22 +24,18 @@ export default function KDSBoard({ sector, title }: KDSBoardProps) {
 
   useEffect(() => { loadOrders() }, [loadOrders])
 
-  // ── Tiempo real ────────────────────────────────────────────────────
   useWebSocket<SectorOrderDto>('/topic/orders', (event: WsEvent<SectorOrderDto>) => {
     const payload = event.payload
-    if (payload.sector !== sector) return // evento de otro sector, ignorar
+    if (payload.sector !== sector) return
 
     if (event.type === 'ORDER_CREATED') {
       setOrders(prev => [...prev, payload])
     }
-
     if (event.type === 'SECTOR_STATUS_UPDATED') {
       setOrders(prev => {
-        if (payload.status === 'ENTREGADO') {
-          // ya no es "activo" — se saca de la pantalla
-          return prev.filter(o => o.id !== payload.id)
-        }
-        return prev.map(o => (o.id === payload.id ? payload : o))
+        if (payload.status === 'ENTREGADO') return prev.filter(o => o.id !== payload.id)
+        const exists = prev.some(o => o.id === payload.id)
+        return exists ? prev.map(o => (o.id === payload.id ? payload : o)) : [...prev, payload]
       })
     }
   })
@@ -50,7 +45,6 @@ export default function KDSBoard({ sector, title }: KDSBoardProps) {
     setError('')
     try {
       await updateSectorStatus(id, status)
-      // El propio WS actualiza el estado — no hace falta tocar el state acá
     } catch {
       setError('No se pudo actualizar el estado del pedido')
     } finally {
@@ -63,17 +57,19 @@ export default function KDSBoard({ sector, title }: KDSBoardProps) {
   )
 
   return (
-    <div className={styles.layout}>
-      <h1 className={styles.title}>{title}</h1>
+    <div className="p-6 max-w-[1400px] mx-auto">
+      <h1 className="m-0 mb-5 text-3xl font-bold">{title}</h1>
 
-      {error && <div className={styles.error}>{error}</div>}
+      {error && (
+        <div className="mb-4 rounded-lg border-l-4 border-danger bg-danger/10 px-4 py-3">{error}</div>
+      )}
 
       {loading ? (
-        <p className={styles.loading}>Cargando pedidos...</p>
+        <p className="text-muted">Cargando pedidos...</p>
       ) : sorted.length === 0 ? (
         <div className="empty">No hay pedidos activos para {title.toLowerCase()}.</div>
       ) : (
-        <div className={styles.grid}>
+        <div className="grid gap-3.5 [grid-template-columns:repeat(auto-fill,minmax(280px,1fr))]">
           {sorted.map(order => (
             <SectorOrderCard
               key={order.id}

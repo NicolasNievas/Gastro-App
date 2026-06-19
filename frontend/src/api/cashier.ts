@@ -1,10 +1,10 @@
 import client from './client'
-import type { BillResponseDto, PaymentResponseDto, PaymentSummaryDto } from '../types'
+import type { BillResponseDto, CloseCashierRequest, PaymentResponseDto, PaymentSummaryDto } from '../types'
 
 export const getBill = (tableId: number) =>
   client.get<BillResponseDto>(`/cashier/bill/${tableId}`)
 
-export const closeTable = (tableId: number, data: unknown) =>
+export const closeTable = (tableId: number, data: CloseCashierRequest) =>
   client.post<PaymentResponseDto>(`/cashier/close/${tableId}`, data)
 
 export const getHistory = (params?: { tableNumber?: number; method?: string }) =>
