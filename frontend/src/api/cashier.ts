@@ -1,0 +1,14 @@
+import client from './client'
+import type { BillResponseDto, PaymentResponseDto, PaymentSummaryDto } from '../types'
+
+export const getBill = (tableId: number) =>
+  client.get<BillResponseDto>(`/cashier/bill/${tableId}`)
+
+export const closeTable = (tableId: number, data: unknown) =>
+  client.post<PaymentResponseDto>(`/cashier/close/${tableId}`, data)
+
+export const getHistory = (params?: { tableNumber?: number; method?: string }) =>
+  client.get<PaymentSummaryDto[]>('/cashier/history', { params })
+
+export const getPayment = (id: number) =>
+  client.get<PaymentResponseDto>(`/cashier/history/${id}`)
