@@ -244,3 +244,14 @@ export interface StockAlertResponse {
   lowStock: StockStatusDto[]
   outOfStock: StockStatusDto[]
 }
+
+export interface RestockRequest {
+  quantity: number
+  notes?: string
+}
+
+export interface StockAdjustmentRequest {
+  quantity: number
+  reason: StockMovementReason
+  notes?: string
+}
