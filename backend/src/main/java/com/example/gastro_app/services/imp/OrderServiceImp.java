@@ -37,6 +37,7 @@ public class OrderServiceImp implements OrderService {
     private final TableRepository tableRepository;
     private final TableMapper tableMapper;
     private final SimpMessagingTemplate messagingTemplate;
+    private final StockMovementRepository stockMovementRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -72,9 +73,10 @@ public class OrderServiceImp implements OrderService {
         UserEntity waiter = userRepository.findByUsername(waiterUsername)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + waiterUsername));
 
-        // 3. Validar productos y construir items
+        // 3. Validar productos, descontar stock y construir items
         //    Espejo de las validaciones en sendOrder() + isUnavailable() + hasStockFor()
         List<OrderItemEntity> itemEntities = new ArrayList<>();
+        List<StockMovementEntity> pendingMovements = new ArrayList<>();
         BigDecimal total = BigDecimal.ZERO;
 
         for (OrderItemRequestDto itemReq : req.getItems()){
@@ -91,6 +93,18 @@ public class OrderServiceImp implements OrderService {
                 throw new BusinessException("Stock insuficiente de '" + product.getName()
                         + "' (disponible: " + product.getStock() + ")");
             }
+
+            // Descuento de stock
+            int newStock = product.getStock() - itemReq.getQuantity();
+            product.setStock(newStock);
+            product.setNoStock(newStock == 0);
+            productRepository.save(product);
+
+            pendingMovements.add(StockMovementEntity.builder()
+                    .product(product)
+                    .quantityChange(-itemReq.getQuantity())
+                    .reason(StockMovementReason.SALE)
+                    .build());
 
             itemEntities.add(OrderItemEntity.builder()
                     .product(product)
@@ -116,6 +130,10 @@ public class OrderServiceImp implements OrderService {
         itemEntities.forEach(item -> item.setOrder(order));
         List<OrderItemEntity> savedItems = orderItemRepository.saveAll(itemEntities);
         order.setItems(savedItems);
+
+        // 5b. Persistir movimientos de stock
+        pendingMovements.forEach(m -> m.setOrder(order));
+        stockMovementRepository.saveAll(pendingMovements);
 
         // 6. Crear sector orders + broadcast a cocina/barra
         List<SectorOrderEntity> savedSectorOrders = new ArrayList<>();

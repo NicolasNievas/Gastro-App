@@ -25,12 +25,9 @@ public class CashierServiceImp implements CashierService {
 
     private final TableRepository tableRepository;
     private final TableService tableService;
-    private final TableMapper tableMapper;
     private final OrderService orderService;
     private final OrderItemRepository orderItemRepository;
-    private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
-    private final StockMovementRepository stockMovementRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -79,9 +76,6 @@ public class CashierServiceImp implements CashierService {
                 .notes(req.getNotes())
                 .build());
 
-        // Descontar stock — espejo de decrementStock() en app.js
-        decrementStock(items);
-
         // Cerrar pedidos y linkearlos al pago
         orderService.closeOrdersByTableId(tableId, payment);
 
@@ -113,33 +107,6 @@ public class CashierServiceImp implements CashierService {
 
         List<OrderItemEntity> items = orderItemRepository.findItemsByPaymentId(id);
         return toPaymentDto(payment, items);
-    }
-
-    // ── Lógica interna ────────────────────────────────────────────────
-
-    /**
-     * Agrega cantidades por producto para evitar duplicados
-     * y descuenta el stock. Espejo de decrementStock() en app.js.
-     */
-    private void decrementStock(List<OrderItemEntity> items) {
-        Map<Long, Integer> totals = new LinkedHashMap<>();
-        items.forEach(i -> totals.merge(i.getProduct().getId(), i.getQuantity(), Integer::sum));
-
-        totals.forEach((productId, qty) -> {
-            ProductEntity product = productRepository.findById(productId).orElse(null);
-            if (product == null) return;
-
-            int newStock = Math.max(0, product.getStock() - qty);
-            product.setStock(newStock);
-            product.setNoStock(newStock == 0);
-            productRepository.save(product);
-
-            stockMovementRepository.save(StockMovementEntity.builder()
-                    .product(product)
-                    .quantityChange(-qty)           // negativo = salida
-                    .reason(StockMovementReason.SALE)
-                    .build());
-        });
     }
 
     // ── Helpers ───────────────────────────────────────────────────────
