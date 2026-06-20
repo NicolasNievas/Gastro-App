@@ -29,6 +29,12 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.findById(id));
     }
 
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<CategoryResponseDto>> findAllIncludingInactive() {
+        return ResponseEntity.ok(categoryService.findAllIncludingInactive());
+    }
+
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<CategoryResponseDto> create(@RequestBody @Valid CategoryRequestDto request) {
@@ -46,6 +52,13 @@ public class CategoryController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deactivate(@PathVariable Long id) {
         categoryService.deactivate(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/activate")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> activate(@PathVariable Long id) {
+        categoryService.activate(id);
         return ResponseEntity.noContent().build();
     }
 }

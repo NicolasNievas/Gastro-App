@@ -11,4 +11,6 @@ public interface CategoryService {
     CategoryResponseDto create(CategoryRequestDto request);
     CategoryResponseDto update(Long id, CategoryRequestDto request);
     void deactivate(Long id);
+    List<CategoryResponseDto> findAllIncludingInactive();
+    void activate(Long id);
 }

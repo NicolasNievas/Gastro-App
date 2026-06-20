@@ -213,3 +213,34 @@ export interface CloseCashierRequest {
   paymentMethod: PaymentMethod
   notes?: string
 }
+
+export interface ProductRequest {
+  name: string
+  price: number
+  categoryId: number
+  sector: Sector
+  stock: number
+  lowStock?: number
+  noStock?: boolean
+  active?: boolean
+}
+
+export interface CategoryRequest {
+  name: string
+}
+
+export interface RestockRequest {
+  quantity: number
+  notes?: string
+}
+
+export interface StockAdjustmentRequest {
+  quantity: number
+  reason: StockMovementReason
+  notes?: string
+}
+
+export interface StockAlertResponse {
+  lowStock: StockStatusDto[]
+  outOfStock: StockStatusDto[]
+}

@@ -21,6 +21,7 @@ const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
 export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
   const [bill, setBill]       = useState<BillResponseDto | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
   const [error, setError]     = useState('')
 
   const [discount, setDiscount]   = useState(0)
@@ -34,6 +35,7 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
 
   useEffect(() => {
     setLoading(true)
+    setLoadError('')
     setError('')
     setReceipt(null)
     setMethod('')
@@ -51,7 +53,7 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
   }, [tableId])
 
   if (loading) return <div className="card text-muted">Cargando cuenta...</div>
-  if (error)   return <div className="card text-danger">{error}</div>
+  if (loadError)   return <div className="card text-danger">{loadError}</div>
   if (!bill)   return null
 
   const total     = Math.max(0, bill.subtotal - discount + surcharge)

@@ -60,6 +60,19 @@ public class CategoryServiceImp implements CategoryService {
         categoryRepository.save(entity);
     }
 
+    @Override
+    public List<CategoryResponseDto> findAllIncludingInactive() {
+        return categoryRepository.findAllByOrderByNameAsc().stream()
+                .map(this::toDto).toList();
+    }
+
+    @Override
+    public void activate(Long id) {
+        CategoryEntity entity = getOrThrow(id);
+        entity.setActive(true);
+        categoryRepository.save(entity);
+    }
+
     private CategoryEntity getOrThrow(Long id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Categoría", id));
