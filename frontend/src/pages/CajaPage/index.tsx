@@ -7,7 +7,7 @@ import { TABLE_STATE_PILL } from '../../utils/stateStyles'
 import type { TableDto, WsEvent } from '../../types'
 
 export default function CajaPage() {
-  const { logout, user } = useAuth()
+  const { user } = useAuth()
   const [tables, setTables]       = useState<TableDto[]>([])
   const [loading, setLoading]     = useState(true)
   const [selectedId, setSelectedId] = useState<number | null>(null)
@@ -48,7 +48,6 @@ export default function CajaPage() {
           <p className="m-0 text-sm text-muted">Rol: {user?.username}</p>
           <h1 className="m-0 text-3xl font-bold">Caja</h1>
         </div>
-        <button className="btn-ghost" onClick={logout}>Cerrar sesión</button>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-5 items-start">

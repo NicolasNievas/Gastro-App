@@ -1,9 +1,7 @@
 package com.example.gastro_app.controllers;
 
 import com.example.gastro_app.dtos.request.CloseCashierRequestDto;
-import com.example.gastro_app.dtos.response.BillResponseDto;
-import com.example.gastro_app.dtos.response.PaymentResponseDto;
-import com.example.gastro_app.dtos.response.PaymentSummaryDto;
+import com.example.gastro_app.dtos.response.*;
 import com.example.gastro_app.enums.PaymentMethod;
 import com.example.gastro_app.services.CashierService;
 import jakarta.validation.Valid;
@@ -51,5 +49,17 @@ public class CashierController {
     @PreAuthorize("hasAnyRole('ADMIN', 'CAJA')")
     public ResponseEntity<PaymentResponseDto> getPaymentById(@PathVariable Long id) {
         return ResponseEntity.ok(cashierService.getPaymentById(id));
+    }
+
+    @GetMapping("/summary/today")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CAJA')")
+    public ResponseEntity<TodaySummaryDto> getTodaySummary() {
+        return ResponseEntity.ok(cashierService.getTodaySummary());
+    }
+
+    @GetMapping("/open-tables-summary")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CAJA')")
+    public ResponseEntity<List<OpenTableSummaryDto>> getOpenTablesSummary() {
+        return ResponseEntity.ok(cashierService.getOpenTablesSummary());
     }
 }

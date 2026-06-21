@@ -1,6 +1,7 @@
 package com.example.gastro_app.controllers;
 
 import com.example.gastro_app.dtos.request.UpdateSectorStatusDto;
+import com.example.gastro_app.dtos.response.KdsSummaryDto;
 import com.example.gastro_app.dtos.response.SectorOrderResponseDto;
 import com.example.gastro_app.enums.Sector;
 import com.example.gastro_app.services.OrderService;
@@ -33,5 +34,10 @@ public class SectorOrderController {
             @PathVariable Long id,
             @RequestBody @Valid UpdateSectorStatusDto req) {
         return ResponseEntity.ok(orderService.updateSectorStatus(id, req));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<KdsSummaryDto> getSummary() {
+        return ResponseEntity.ok(orderService.getSummary());
     }
 }

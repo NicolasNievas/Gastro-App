@@ -2,6 +2,7 @@ package com.example.gastro_app.repositories;
 
 import com.example.gastro_app.entities.SectorOrderEntity;
 import com.example.gastro_app.enums.Sector;
+import com.example.gastro_app.enums.SectorOrderStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -33,4 +34,6 @@ public interface SectorOrderRepository extends JpaRepository<SectorOrderEntity, 
 
     @Query("SELECT so FROM SectorOrderEntity so WHERE so.order.id = :orderId")
     List<SectorOrderEntity> findByOrderId(@Param("orderId") Long orderId);
+
+    long countByStatus(SectorOrderStatus status);
 }

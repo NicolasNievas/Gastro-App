@@ -2,6 +2,7 @@ package com.example.gastro_app.services;
 
 import com.example.gastro_app.dtos.request.CreateOrderRequestDto;
 import com.example.gastro_app.dtos.request.UpdateSectorStatusDto;
+import com.example.gastro_app.dtos.response.KdsSummaryDto;
 import com.example.gastro_app.dtos.response.OrderResponseDto;
 import com.example.gastro_app.dtos.response.OrderSummaryDto;
 import com.example.gastro_app.dtos.response.SectorOrderResponseDto;
@@ -20,4 +21,5 @@ public interface OrderService {
     SectorOrderResponseDto updateSectorStatus(Long sectorOrderId, UpdateSectorStatusDto req);
     List<OrderItemEntity> getOpenItemsByTableId(Long tableId);
     void closeOrdersByTableId(Long tableId, PaymentEntity payment);
+    KdsSummaryDto getSummary();
 }

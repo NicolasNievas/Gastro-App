@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,4 +27,7 @@ public interface PaymentRepository extends JpaRepository<PaymentEntity, Long> {
 
     @Query("SELECT p FROM PaymentEntity p JOIN FETCH p.table WHERE p.id = :id")
     Optional<PaymentEntity> findByIdWithTable(@Param("id") Long id);
+
+    @Query("SELECT p FROM PaymentEntity p WHERE p.createdAt >= :start AND p.createdAt < :end")
+    List<PaymentEntity> findByCreatedAtBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

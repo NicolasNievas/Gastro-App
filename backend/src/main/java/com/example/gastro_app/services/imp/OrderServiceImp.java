@@ -228,6 +228,16 @@ public class OrderServiceImp implements OrderService {
         orderRepository.saveAll(open);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public KdsSummaryDto getSummary() {
+        return KdsSummaryDto.builder()
+                .pendientes(sectorOrderRepository.countByStatus(SectorOrderStatus.PENDIENTE))
+                .enPreparacion(sectorOrderRepository.countByStatus(SectorOrderStatus.EN_PREPARACION))
+                .listos(sectorOrderRepository.countByStatus(SectorOrderStatus.LISTO))
+                .build();
+    }
+
     // ── Mappers ───────────────────────────────────────────────────────
 
     private OrderItemResponseDto toItemDto(OrderItemEntity e) {

@@ -1,5 +1,5 @@
 import client from './client'
-import type { BillResponseDto, CloseCashierRequest, PaymentResponseDto, PaymentSummaryDto } from '../types'
+import type { BillResponseDto, CloseCashierRequest, OpenTableSummary, PaymentResponseDto, PaymentSummaryDto, TodaySummary } from '../types'
 
 export const getBill = (tableId: number) =>
   client.get<BillResponseDto>(`/cashier/bill/${tableId}`)
@@ -12,3 +12,6 @@ export const getHistory = (params?: { tableNumber?: number; method?: string }) =
 
 export const getPayment = (id: number) =>
   client.get<PaymentResponseDto>(`/cashier/history/${id}`)
+
+export const getTodaySummary = () => client.get<TodaySummary>('/cashier/summary/today')
+export const getOpenTablesSummary = () => client.get<OpenTableSummary[]>('/cashier/open-tables-summary')

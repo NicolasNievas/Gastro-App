@@ -1,28 +1,17 @@
 import { NavLink, Routes, Route, Navigate } from 'react-router-dom'
-import { useAuth } from '../../contexts/AuthContext'
 import ProductsTab from './tabs/ProductsTab'
 import CategoriesTab from './tabs/CategoriesTab'
-import StockTab from './tabs/StockTab'
-import HistoryTab from './tabs/HistoryTab'
 
 const TABS = [
   { to: 'products',   label: 'Productos' },
   { to: 'categories', label: 'Categorías' },
-  { to: 'stock',       label: 'Stock' },
-  { to: 'history',     label: 'Historial' },
 ]
 
 export default function AdminPage() {
-  const { logout, user } = useAuth()
-
   return (
     <div className="p-6 max-w-[1400px] mx-auto">
-      <header className="flex items-center justify-between mb-6">
-        <div>
-          <p className="m-0 text-sm text-muted">Rol: {user?.username}</p>
-          <h1 className="m-0 text-3xl font-bold">Administración</h1>
-        </div>
-        <button className="btn-ghost" onClick={logout}>Cerrar sesión</button>
+      <header className="mb-6">
+        <h1 className="m-0 text-3xl font-bold">Catálogo</h1>
       </header>
 
       <nav className="flex gap-2 mb-6 border-b border-line">
@@ -47,8 +36,6 @@ export default function AdminPage() {
         <Route index element={<Navigate to="products" replace />} />
         <Route path="products"   element={<ProductsTab />} />
         <Route path="categories" element={<CategoriesTab />} />
-        <Route path="stock"      element={<StockTab />} />
-        <Route path="history"    element={<HistoryTab />} />
       </Routes>
     </div>
   )

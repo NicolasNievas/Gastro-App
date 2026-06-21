@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -107,6 +109,42 @@ public class CashierServiceImp implements CashierService {
 
         List<OrderItemEntity> items = orderItemRepository.findItemsByPaymentId(id);
         return toPaymentDto(payment, items);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TodaySummaryDto getTodaySummary() {
+        LocalDateTime start = LocalDate.now().atStartOfDay();
+        LocalDateTime end = start.plusDays(1);
+        List<PaymentEntity> payments = paymentRepository.findByCreatedAtBetween(start, end);
+        BigDecimal total = payments.stream()
+                .map(PaymentEntity::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return TodaySummaryDto.builder()
+                .totalAmount(total)
+                .salesCount(payments.size())
+                .build();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<OpenTableSummaryDto> getOpenTablesSummary() {
+        return tableRepository.findByStateNotOrderByNumberAsc(MesaStatus.LIBRE).stream()
+                .map(table -> {
+                    List<OrderItemEntity> items = orderService.getOpenItemsByTableId(table.getId());
+                    BigDecimal subtotal = calculateSubtotal(items);
+                    BigDecimal discount = nvl(table.getDiscount());
+                    BigDecimal surcharge = nvl(table.getSurcharge());
+                    BigDecimal total = subtotal.subtract(discount).add(surcharge).max(BigDecimal.ZERO);
+                    return OpenTableSummaryDto.builder()
+                            .tableId(table.getId())
+                            .tableNumber(table.getNumber())
+                            .state(table.getState())
+                            .stateLabel(table.getState().getLabel())
+                            .openedAt(table.getOpenedAt())
+                            .total(total)
+                            .build();
+                }).toList();
     }
 
     // ── Helpers ───────────────────────────────────────────────────────

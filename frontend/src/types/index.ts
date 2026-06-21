@@ -255,3 +255,23 @@ export interface StockAdjustmentRequest {
   reason: StockMovementReason
   notes?: string
 }
+
+export interface KdsSummary {
+  pendientes: number
+  enPreparacion: number
+  listos: number
+}
+
+export interface TodaySummary {
+  totalAmount: number
+  salesCount: number
+}
+
+export interface OpenTableSummary {
+  tableId: number
+  tableNumber: number
+  state: MesaStatus
+  stateLabel: string
+  openedAt: string | null
+  total: number
+}

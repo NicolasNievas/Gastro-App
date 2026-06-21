@@ -1,9 +1,7 @@
 package com.example.gastro_app.services;
 
 import com.example.gastro_app.dtos.request.CloseCashierRequestDto;
-import com.example.gastro_app.dtos.response.BillResponseDto;
-import com.example.gastro_app.dtos.response.PaymentResponseDto;
-import com.example.gastro_app.dtos.response.PaymentSummaryDto;
+import com.example.gastro_app.dtos.response.*;
 import com.example.gastro_app.enums.PaymentMethod;
 
 import java.util.List;
@@ -13,4 +11,6 @@ public interface CashierService {
     PaymentResponseDto closeTable(Long tableId, CloseCashierRequestDto req);
     List<PaymentSummaryDto> getHistory(Integer tableNumber, PaymentMethod method);
     PaymentResponseDto getPaymentById(Long id);
+    TodaySummaryDto getTodaySummary();
+    List<OpenTableSummaryDto> getOpenTablesSummary();
 }

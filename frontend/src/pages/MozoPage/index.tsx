@@ -15,7 +15,7 @@ const STATE_CLASS: Record<string, string> = {
 }
 
 export default function MozoPage() {
-  const { logout, user } = useAuth()
+  const { user } = useAuth()
   const [tables,  setTables]  = useState<TableDto[]>([])
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState('')
@@ -53,7 +53,6 @@ export default function MozoPage() {
         </div>
         <div className={styles.headerActions}>
           <button onClick={() => openModal(null)}>Nueva comanda</button>
-          <button className="btn-ghost" onClick={logout}>Cerrar sesión</button>
         </div>
       </header>
 
