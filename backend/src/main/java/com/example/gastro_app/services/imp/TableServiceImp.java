@@ -105,7 +105,7 @@ public class TableServiceImp implements TableService {
         if (table.getOpenedAt() == null) {
             table.setOpenedAt(LocalDateTime.now());
         }
-        if (table.getState() == MesaStatus.LIBRE) {
+        if (table.getState() == MesaStatus.LIBRE || table.getState() == MesaStatus.PARA_COBRAR) {
             table.setState(MesaStatus.ESPERANDO_PEDIDO);
         };
         tableRepository.save(table);

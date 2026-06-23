@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TableRepository extends JpaRepository<TableEntity, Long> {
@@ -13,4 +14,5 @@ public interface TableRepository extends JpaRepository<TableEntity, Long> {
     List<TableEntity> findByStateNotOrderByNumberAsc(MesaStatus state);
     boolean existsByNumber(Integer number);
     boolean existsByNumberAndIdNot(Integer number, Long id);
+    Optional<TableEntity> findByNumber(Integer number);
 }

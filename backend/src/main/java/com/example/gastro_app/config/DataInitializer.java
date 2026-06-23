@@ -46,7 +46,8 @@ public class DataInitializer implements CommandLineRunner {
                 new Object[]{"mozo1",   "mozo123",    Role.MOZO},
                 new Object[]{"cocina1", "cocina123",  Role.COCINA},
                 new Object[]{"barra1",  "barra123",   Role.BARRA},
-                new Object[]{"caja1",   "caja123",    Role.CAJA}
+                new Object[]{"caja1",   "caja123",    Role.CAJA},
+                new Object[]{"autoservicio", "autoservicio_interno", Role.MOZO}
         ).forEach(u -> {
             String username = (String) u[0];
             if (userRepository.findByUsername(username).isEmpty()) {
