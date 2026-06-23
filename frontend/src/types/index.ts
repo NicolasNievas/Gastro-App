@@ -275,3 +275,49 @@ export interface OpenTableSummary {
   openedAt: string | null
   total: number
 }
+
+// ── Menú digital (público) ────────────────────────────────────────────
+export interface MenuProductDto {
+  id: number
+  name: string
+  price: number
+  sector: string
+  available: boolean
+}
+
+export interface MenuCategoryDto {
+  id: number
+  name: string
+  products: MenuProductDto[]
+}
+
+export interface MenuResponseDto {
+  tableNumber: number
+  tableState: MesaStatus
+  tableStateLabel: string
+  categories: MenuCategoryDto[]
+}
+
+export interface CustomerOrderItemDto {
+  productName: string
+  quantity: number
+  unitPrice: number
+  subtotal: number
+}
+
+export interface CustomerOrderResponseDto {
+  orderId: number
+  tableNumber: number
+  message: string
+  items: CustomerOrderItemDto[]
+  total: number
+}
+
+// Cart item — frontend only, similar a DraftItem pero para el menú público
+export interface MenuCartItem {
+  productId: number
+  productName: string
+  price: number
+  quantity: number
+  notes: string
+}

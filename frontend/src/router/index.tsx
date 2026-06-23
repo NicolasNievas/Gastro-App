@@ -13,6 +13,7 @@ import StockPage   from '../pages/StockPage'
 import HistoryPage from '../pages/HistoryPage'
 import AdminPage   from '../pages/AdminPage'
 import Layout      from '../components/Layout'
+import MenuPage from '../pages/MenuPage'
 
 interface PrivateRouteProps {
   children: ReactNode
@@ -31,6 +32,7 @@ const ALL: Role[] = ['ADMIN', 'MOZO', 'COCINA', 'BARRA', 'CAJA']
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
+  { path: '/menu/:tableNumber',  element: <MenuPage /> },
   {
     // Ruta-layout sin path propio: envuelve todo lo autenticado con el Sidebar
     element: (
