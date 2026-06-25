@@ -321,3 +321,12 @@ export interface MenuCartItem {
   quantity: number
   notes: string
 }
+
+// ── Mercado Pago ─────────────────────────────────────────────────────
+export interface MpQrResponse {
+  orderId: string
+  qrImageUrl: string
+  amount: number
+  tableNumber: number
+  externalReference: string
+}

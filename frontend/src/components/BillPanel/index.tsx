@@ -4,6 +4,7 @@ import { adjustTable } from '../../api/tables'
 import { formatMoney } from '../../utils/format'
 import { TABLE_STATE_PILL } from '../../utils/stateStyles'
 import type { BillResponseDto, PaymentResponseDto, PaymentMethod } from '../../types'
+import { cancelQrOrder } from '../../api/mercadopago'
 
 interface BillPanelProps {
   tableId: number
@@ -32,6 +33,8 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
 
   const [submitting, setSubmitting] = useState(false)
   const [receipt, setReceipt]       = useState<PaymentResponseDto | null>(null)
+
+  const [mpQr, setMpQr] = useState<{ orderId: string } | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -85,6 +88,13 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const handleCancelMp = async () => {
+    if (mpQr?.orderId) {
+      await cancelQrOrder(mpQr.orderId).catch(() => {})  // Best-effort, no bloquear
+    }
+    setMpQr(null)
   }
 
   // ── Ticket post-cobro ────────────────────────────────────────────
@@ -221,6 +231,10 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
         <button className="btn-primary" disabled={submitting || !canCharge} onClick={handleSubmit}>
         {submitting ? 'Cobrando...' : 'Cobrar, generar ticket y cerrar mesa'}
         </button>
+
+        <button className="btn-ghost" onClick={handleCancelMp}>
+  Cancelar
+</button>
     </div>
   )
 }
