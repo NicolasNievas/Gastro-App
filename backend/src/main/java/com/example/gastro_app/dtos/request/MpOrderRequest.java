@@ -23,8 +23,6 @@ public class MpOrderRequest {
     @JsonProperty("expiration_time")
     private String expirationTime = "PT30M";
 
-    @JsonProperty("notification_url")
-    private String notificationUrl;
 
     private MpOrderConfigDto config;
     private MpOrderTransactionsDto transactions;

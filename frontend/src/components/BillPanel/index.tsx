@@ -3,8 +3,8 @@ import { getBill, closeTable } from '../../api/cashier'
 import { adjustTable } from '../../api/tables'
 import { formatMoney } from '../../utils/format'
 import { TABLE_STATE_PILL } from '../../utils/stateStyles'
-import type { BillResponseDto, PaymentResponseDto, PaymentMethod } from '../../types'
-import { cancelQrOrder } from '../../api/mercadopago'
+import type { BillResponseDto, PaymentResponseDto, PaymentMethod, MpQrResponse } from '../../types'
+import { cancelQrOrder, createQrOrderCaja } from '../../api/mercadopago'
 
 interface BillPanelProps {
   tableId: number
@@ -34,7 +34,8 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
   const [submitting, setSubmitting] = useState(false)
   const [receipt, setReceipt]       = useState<PaymentResponseDto | null>(null)
 
-  const [mpQr, setMpQr] = useState<{ orderId: string } | null>(null)
+  const [mpLoading, setMpLoading] = useState(false)
+  const [mpQr, setMpQr]           = useState<MpQrResponse | null>(null)
 
   useEffect(() => {
     setLoading(true)
@@ -90,9 +91,23 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
     }
   }
 
+  const handleMercadoPago = async () => {
+    setMpLoading(true)
+    setError('')
+    try {
+      await adjustTable(tableId, { discount, surcharge })
+      const res = await createQrOrderCaja(bill.tableNumber)
+      setMpQr(res.data)
+    } catch (err: any) {
+      setError(err.response?.data?.message ?? 'Error al cargar el pago en el QR')
+    } finally {
+      setMpLoading(false)
+    }
+  }
+
   const handleCancelMp = async () => {
     if (mpQr?.orderId) {
-      await cancelQrOrder(mpQr.orderId).catch(() => {})  // Best-effort, no bloquear
+      await cancelQrOrder(mpQr.orderId).catch(() => {})
     }
     setMpQr(null)
   }
@@ -138,6 +153,40 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
 
         <button className="btn-primary mt-2" onClick={onClosed}>
           Cobrar otra mesa
+        </button>
+      </div>
+    )
+  }
+
+  // ── Panel QR Mercado Pago ────────────────────────────────────────
+  if (mpQr) {
+    return (
+      <div className="card flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h2 className="m-0 text-xl font-bold">Pagar con Mercado Pago</h2>
+          <span className="text-sm text-muted">Mesa {mpQr.tableNumber}</span>
+        </div>
+
+        <div className="flex flex-col items-center gap-3 py-4">
+          <div className="bg-white p-4 rounded-xl">
+            <img
+              src={mpQr.qrImageUrl}
+              alt="QR Mercado Pago"
+              className="w-48 h-48 object-contain"
+            />
+          </div>
+          <div className="text-2xl font-bold text-accent">{formatMoney(mpQr.amount)}</div>
+          <p className="text-sm text-muted text-center">
+            El cliente escanea el QR con la app de Mercado Pago.
+          </p>
+        </div>
+
+        <div className="rounded-lg bg-info/10 border-l-4 border-info px-3 py-2 text-sm">
+          La mesa se cerrará automáticamente cuando el cliente confirme el pago.
+        </div>
+
+        <button className="btn-ghost" onClick={handleCancelMp}>
+          Cancelar pago con MP
         </button>
       </div>
     )
@@ -232,9 +281,11 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
         {submitting ? 'Cobrando...' : 'Cobrar, generar ticket y cerrar mesa'}
         </button>
 
-        <button className="btn-ghost" onClick={handleCancelMp}>
-  Cancelar
-</button>
+      {canCharge && (
+        <button className="btn-ghost" disabled={mpLoading} onClick={handleMercadoPago}>
+          {mpLoading ? 'Cargando QR...' : 'Cobrar con Mercado Pago'}
+        </button>
+      )}
     </div>
   )
 }

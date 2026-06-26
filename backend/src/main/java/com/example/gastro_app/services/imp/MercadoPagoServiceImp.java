@@ -40,7 +40,6 @@ public class MercadoPagoServiceImp implements MercadoPagoService {
 
     @Value("${mp.access-token}")       private String accessToken;
     @Value("${mp.webhook-secret:}")    private String webhookSecret;
-    @Value("${mp.notification-url:}")  private String notificationUrl;
     @Value("${mp.pos-external-id}")    private String posExternalId;
     @Value("${mp.qr-image-url}")       private String qrImageUrl;
 
@@ -92,9 +91,6 @@ public class MercadoPagoServiceImp implements MercadoPagoService {
                 .description("Mesa " + tableNumber + " - " + items.size() + " producto(s)")
                 .externalReference(externalRef)
                 .expirationTime("PT30M")
-                .notificationUrl(
-                        notificationUrl != null && !notificationUrl.isBlank()
-                                ? notificationUrl + "/mp/webhook" : null)
                 .config(MpOrderConfigDto.builder()
                         .qr(MpOrderQrConfigDto.builder()
                                 .externalPosId(posExternalId)
