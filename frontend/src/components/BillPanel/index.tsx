@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { getBill, closeTable } from '../../api/cashier'
 import { adjustTable } from '../../api/tables'
 import { formatMoney } from '../../utils/format'
@@ -36,12 +36,20 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
 
   const [mpLoading, setMpLoading] = useState(false)
   const [mpQr, setMpQr]           = useState<MpQrResponse | null>(null)
+  const pendingOrderIdRef = useRef<string | null>(null)
 
   useEffect(() => {
+
+    if (pendingOrderIdRef.current){
+      cancelQrOrder(pendingOrderIdRef.current).catch(() => {})
+      pendingOrderIdRef.current = null
+    }
+
     setLoading(true)
     setLoadError('')
     setError('')
     setReceipt(null)
+    setMpQr(null)
     setMethod('')
     setNotes('')
     setPersons(1)
@@ -98,6 +106,7 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
       await adjustTable(tableId, { discount, surcharge })
       const res = await createQrOrderCaja(bill.tableNumber)
       setMpQr(res.data)
+      pendingOrderIdRef.current = res.data.orderId
     } catch (err: any) {
       setError(err.response?.data?.message ?? 'Error al cargar el pago en el QR')
     } finally {
@@ -108,6 +117,7 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
   const handleCancelMp = async () => {
     if (mpQr?.orderId) {
       await cancelQrOrder(mpQr.orderId).catch(() => {})
+      pendingOrderIdRef.current = null
     }
     setMpQr(null)
   }

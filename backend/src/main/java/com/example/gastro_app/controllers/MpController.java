@@ -2,6 +2,7 @@ package com.example.gastro_app.controllers;
 
 import com.example.gastro_app.dtos.response.MpQrResponseDto;
 import com.example.gastro_app.services.MercadoPagoService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -30,20 +31,25 @@ public class MpController {
 
     @PostMapping("/webhook")
     public ResponseEntity<Void> webhook(
-            @RequestParam(value = "type",    required = false) String type,
-            @RequestParam(value = "data.id", required = false) String dataId,
+            HttpServletRequest request,
             @RequestHeader(value = "x-signature",  required = false) String xSignature,
             @RequestHeader(value = "x-request-id", required = false) String xRequestId,
             @RequestBody(required = false) Map<String, Object> body) {
 
-        log.info("Webhook MP recibido: type={} dataId={}", type, dataId);
+        String type   = request.getParameter("type");
+        String dataId = request.getParameter("data.id");
 
-        // La nueva API envía type=order, no type=payment
+        log.info("Webhook MP recibido: type={} dataId={} xRequestId={}", type, dataId, xRequestId);
+
         if ("order".equals(type) && dataId != null) {
-            mercadoPagoService.processOrderWebhook(dataId, xSignature, xRequestId, body);
+            try {
+                mercadoPagoService.processOrderWebhook(dataId, xSignature, xRequestId, body);
+            } catch (Exception e) {
+                // Logueamos pero NO propagamos — MP necesita el 200
+                log.error("Error procesando webhook MP (orden {} no bloqueada): {}", dataId, e.getMessage());
+            }
         }
 
-        // MP espera 200 inmediato — siempre devolver OK
         return ResponseEntity.ok().build();
     }
 }

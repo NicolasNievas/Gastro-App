@@ -68,7 +68,7 @@ public class MercadoPagoServiceImp implements MercadoPagoService {
         BigDecimal surcharge = nvl(table.getSurcharge());
         BigDecimal finalTotal = subtotal.subtract(discount).add(surcharge).max(BigDecimal.ZERO);
 
-        String externalRef = "TABLE-" + table.getId() + "-" + tableNumber;
+        String externalRef = "TABLE-" + table.getId() + "-" + tableNumber + "-" + System.currentTimeMillis();
         String totalStr    = finalTotal.setScale(2).toPlainString();
 
         // ── Construir ítems ───────────────────────────────────────────
@@ -230,28 +230,22 @@ public class MercadoPagoServiceImp implements MercadoPagoService {
     }
 
     private void validateSignature(String dataId, String xSignature, String xRequestId) {
+        if (xSignature == null || xSignature.isBlank()) {
+            log.warn("Webhook sin x-signature, saltando validación");
+            return;
+        }
+
         try {
-            String ts = null, v1 = null;
-            for (String part : xSignature.split(",")) {
-                String[] kv = part.trim().split("=", 2);
-                if (kv.length == 2) {
-                    if ("ts".equals(kv[0])) ts = kv[1];
-                    if ("v1".equals(kv[0])) v1 = kv[1];
-                }
-            }
-            if (ts == null || v1 == null) throw new BusinessException("Firma MP incompleta");
-
-            String manifest = "id:" + dataId + ";request-id:" + xRequestId + ";ts:" + ts + ";";
-            javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
-            mac.init(new javax.crypto.spec.SecretKeySpec(
-                    webhookSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8), "HmacSHA256"));
-            String computed = java.util.HexFormat.of().formatHex(
-                    mac.doFinal(manifest.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
-
-            if (!computed.equals(v1)) throw new BusinessException("Firma MP inválida — posible request no auténtico");
-
-        } catch (java.security.NoSuchAlgorithmException | java.security.InvalidKeyException e) {
-            throw new BusinessException("Error validando firma MP: " + e.getMessage());
+            com.mercadopago.webhook.WebhookSignatureValidator.validate(
+                    xSignature,
+                    xRequestId,
+                    dataId,
+                    webhookSecret
+            );
+            log.info("Firma MP válida para dataId={}", dataId);
+        } catch (com.mercadopago.exceptions.MPInvalidWebhookSignatureException e) {
+            log.warn("Firma MP inválida para dataId={} — {}", dataId, e.getMessage());
+             throw new BusinessException("Firma MP inválida");
         }
     }
 }
