@@ -9,6 +9,7 @@ import { cancelQrOrder, createQrOrderCaja } from '../../api/mercadopago'
 interface BillPanelProps {
   tableId: number
   onClosed: () => void
+  mpAutoClose?: boolean
 }
 
 const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
@@ -16,10 +17,10 @@ const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
   { value: 'DEBITO',        label: 'Débito' },
   { value: 'CREDITO',       label: 'Crédito' },
   { value: 'TRANSFERENCIA', label: 'Transferencia' },
-  { value: 'MERCADO_PAGO',  label: 'Mercado Pago' },
+  //{ value: 'MERCADO_PAGO',  label: 'Mercado Pago' },
 ]
 
-export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
+export default function BillPanel({ tableId, onClosed, mpAutoClose }: BillPanelProps) {
   const [bill, setBill]       = useState<BillResponseDto | null>(null)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
@@ -37,6 +38,7 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
   const [mpLoading, setMpLoading] = useState(false)
   const [mpQr, setMpQr]           = useState<MpQrResponse | null>(null)
   const pendingOrderIdRef = useRef<string | null>(null)
+  const [mpSuccess, setMpSuccess] = useState(false)
 
   useEffect(() => {
 
@@ -63,6 +65,13 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
       .catch(() => setError('No se pudo cargar la cuenta de la mesa'))
       .finally(() => setLoading(false))
   }, [tableId])
+
+  useEffect(() => {
+    if (!mpAutoClose) return
+    pendingOrderIdRef.current = null  // el pago fue procesado, no cancelar
+    setMpQr(null)
+    setMpSuccess(true)
+  }, [mpAutoClose])
 
   if (loading) return <div className="card text-muted">Cargando cuenta...</div>
   if (loadError)   return <div className="card text-danger">{loadError}</div>
@@ -164,6 +173,20 @@ export default function BillPanel({ tableId, onClosed }: BillPanelProps) {
         <button className="btn-primary mt-2" onClick={onClosed}>
           Cobrar otra mesa
         </button>
+      </div>
+    )
+  }
+
+  if (mpSuccess) {
+    return (
+      <div className="card flex flex-col items-center gap-4 py-8 text-center">
+        <div className="text-5xl">✓</div>
+        <h2 className="m-0 text-xl font-bold">Pago recibido</h2>
+        <p className="text-muted text-sm">
+          El cliente pagó con Mercado Pago.<br />
+          La mesa fue cerrada automáticamente.
+        </p>
+        <button className="btn-primary" onClick={onClosed}>Continuar</button>
       </div>
     )
   }

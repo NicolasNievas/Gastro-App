@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { getOpenTables } from '../../api/tables'
 import { useWebSocket } from '../../hooks/useWebSocket'
 import { useAuth } from '../../contexts/AuthContext'
@@ -8,9 +8,16 @@ import type { TableDto, WsEvent } from '../../types'
 
 export default function CajaPage() {
   const { user } = useAuth()
-  const [tables, setTables]       = useState<TableDto[]>([])
-  const [loading, setLoading]     = useState(true)
+  const [tables, setTables]         = useState<TableDto[]>([])
+  const [loading, setLoading]       = useState(true)
   const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [mpAutoClose, setMpAutoClose] = useState(false)
+
+  const selectedIdRef = useRef<number | null>(null)
+  selectedIdRef.current = selectedId
+
+  // Reset al cambiar de mesa
+  useEffect(() => { setMpAutoClose(false) }, [selectedId])
 
   const loadTables = useCallback(() => {
     getOpenTables()
@@ -27,17 +34,20 @@ export default function CajaPage() {
     setTables(prev => {
       if (updated.state === 'LIBRE') return prev.filter(t => t.id !== updated.id)
       const exists = prev.some(t => t.id === updated.id)
-      return exists ? prev.map(t => (t.id === updated.id ? updated : t)) : [...prev, updated]
+      return exists
+        ? prev.map(t => (t.id === updated.id ? updated : t))
+        : [...prev, updated]
     })
 
-    // Bug no deja aparecer el ticket al cerrar mesa
-    // if (updated.state === 'LIBRE' && selectedId === updated.id) {
-    //   setSelectedId(null)
-    // }
+    // Si la mesa seleccionada fue cerrada por MP → notificar al BillPanel
+    if (updated.state === 'LIBRE' && updated.id === selectedIdRef.current) {
+      setMpAutoClose(true)
+    }
   })
 
   const handleClosed = () => {
     setSelectedId(null)
+    setMpAutoClose(false)
     loadTables()
   }
 
@@ -86,7 +96,11 @@ export default function CajaPage() {
 
         <aside className="lg:sticky lg:top-6">
           {selectedId ? (
-            <BillPanel tableId={selectedId} onClosed={handleClosed} />
+            <BillPanel
+              tableId={selectedId}
+              onClosed={handleClosed}
+              mpAutoClose={mpAutoClose}
+            />
           ) : (
             <div className="empty">Seleccioná una mesa para ver la cuenta.</div>
           )}
