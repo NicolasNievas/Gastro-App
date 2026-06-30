@@ -14,6 +14,7 @@ import HistoryPage from '../pages/HistoryPage'
 import AdminPage   from '../pages/AdminPage'
 import Layout      from '../components/Layout'
 import MenuPage from '../pages/MenuPage'
+import ReportsPage from '../pages/ReportsPage'
 
 interface PrivateRouteProps {
   children: ReactNode
@@ -48,6 +49,7 @@ export const router = createBrowserRouter([
       { path: 'caja',    element: <PrivateRoute roles={['CAJA', 'ADMIN']}><CajaPage /></PrivateRoute> },
       { path: 'stock',   element: <PrivateRoute roles={['CAJA', 'ADMIN']}><StockPage /></PrivateRoute> },
       { path: 'history', element: <PrivateRoute roles={['CAJA', 'ADMIN']}><HistoryPage /></PrivateRoute> },
+      { path: 'reports', element: <PrivateRoute roles={['CAJA', 'ADMIN']}><ReportsPage /></PrivateRoute> },
       { path: 'admin/*', element: <PrivateRoute roles={['ADMIN']}><AdminPage /></PrivateRoute> },
     ],
   },

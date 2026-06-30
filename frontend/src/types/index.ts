@@ -330,3 +330,42 @@ export interface MpQrResponse {
   tableNumber: number
   externalReference: string
 }
+
+// ── Reportes ─────────────────────────────────────────────────────────
+
+export interface ReportSummaryDto {
+  totalRevenue:          number
+  totalPayments:         number
+  avgTicket:             number
+  totalDiscount:         number
+  totalSurcharge:        number
+  topPaymentMethod:      string | null
+  topPaymentMethodLabel: string | null
+}
+
+export interface TopProductDto {
+  productName:   string
+  totalQuantity: number
+  totalRevenue:  number
+}
+
+export interface DailyRevenueDto {
+  date:   string   // "2026-06-26"
+  amount: number
+  count:  number
+}
+
+export interface PaymentMethodSummaryDto {
+  method:      string
+  methodLabel: string
+  count:       number
+  amount:      number
+  percentage:  number
+}
+
+export interface HourlySalesDto {
+  hour:   number
+  label:  string
+  count:  number
+  amount: number
+}
